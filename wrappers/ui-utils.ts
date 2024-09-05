@@ -1,10 +1,10 @@
-import {NetworkProvider, sleep, UIProvider} from '@ton/blueprint';
-import {Address, beginCell, Builder, Cell, Dictionary, DictionaryValue, Slice} from "@ton/core";
-import {sha256} from 'ton-crypto';
-import {TonClient4} from "@ton/ton";
-import {base64Decode} from "@ton/sandbox/dist/utils/base64";
-import {LOCK_TYPES, LockType} from "./JettonMinter";
-import {toUnits} from "../scripts/units";
+import { NetworkProvider, sleep, UIProvider } from '@ton/blueprint';
+import { Address, beginCell, Builder, Cell, Dictionary, DictionaryValue, Slice } from "@ton/core";
+import { sha256 } from 'ton-crypto';
+import { TonClient4 } from "@ton/ton";
+import { base64Decode } from "@ton/sandbox/dist/utils/base64";
+import { LOCK_TYPES, LockType } from "./JettonMinter";
+import { toUnits } from "../scripts/units";
 
 export const defaultJettonKeys = ["uri", "name", "description", "image", "image_data", "symbol", "decimals", "amount_style"];
 export const defaultNftKeys = ["uri", "name", "description", "image", "image_data"];
@@ -248,22 +248,25 @@ export const sendToIndex = async (method: string, params: any, provider: Network
     const testnetRpc = 'https://testnet.toncenter.com/api/v3/';
     const rpc = isTestnet ? testnetRpc : mainnetRpc;
 
-    const apiKey = (provider.api() as any).api.parameters.apiKey!; // todo: provider.api().parameters.apiKey is undefined
+    // const apiKey = (provider.api() as any).api.parameters.apiKey!; // todo: provider.api().parameters.apiKey is undefined
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'X-API-Key': apiKey
-    };
+    // const headers = {
+    //     'Content-Type': 'application/json',
+    //     'X-API-Key': apiKey
+    // };
 
-    const response = await fetch(rpc + method + '?' + new URLSearchParams(params), {
-        method: 'GET',
-        headers: headers,
-    });
+    // const response = await fetch(rpc + method + '?' + new URLSearchParams(params), {
+    //     method: 'GET',
+    //     headers: headers,
+    // });
+
+    const response = await fetch(rpc + method + '?' + new URLSearchParams(params) + '&use_v2=true');
+
     return response.json();
 }
 
 export const getAddressFormat = async (address: Address, provider: NetworkProvider, isTestnet: boolean) => {
-    const result = await sendToIndex('wallet', {address: address}, provider);
+    const result = await sendToIndex('wallet', { address: address }, provider);
 
     const nonBounceable = (result.status === "uninit") || (result.wallet_type && result.wallet_type.startsWith('wallet'));
 
@@ -288,7 +291,7 @@ export const jettonWalletCodeFromLibrary = (jettonWalletCodeRaw: Cell) => {
 
     const libraryReferenceCell = beginCell().storeUint(2, 8).storeBuffer(jettonWalletCodeRaw.hash()).endCell();
 
-    return new Cell({exotic: true, bits: libraryReferenceCell.bits, refs: libraryReferenceCell.refs});
+    return new Cell({ exotic: true, bits: libraryReferenceCell.bits, refs: libraryReferenceCell.refs });
 }
 
 export const assert = (condition: boolean, error: string, ui: UIProvider) => {
